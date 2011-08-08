@@ -1,0 +1,6 @@
+*.save
+*.log
+*.depend
+obj/*
+bin/*
+
