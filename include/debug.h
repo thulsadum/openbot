@@ -3,10 +3,7 @@
 
 #define STR(X) #X
 
-#define _TENTER(CLASS, F) Controller::getController()->log(LL_TRACE, STR(CLASS), STR(F) " entered");
-#define _TLEAVE(CLASS, F) Controller::getController()->log(LL_TRACE, STR(CLASS), STR(F) " leaved");
-
-#define TENTER(CLASS) _TENTER(CLASS, __FUNCTION__)
-#define TLEAVE(CLASS) _TLEAVE(CLASS, __FUNCTION__)
+#define TRACE_ENTER(CLASS, F) Controller::getController()->log(LL_TRACE, STR(CLASS), STR(CLASS)"::"STR(F) " entered");
+#define TRACE_LEAVE(CLASS, F) Controller::getController()->log(LL_TRACE, STR(CLASS), STR(CLASS)"::"STR(F) " leaved");
 
 #endif // DEBUG_H_INCLUDED

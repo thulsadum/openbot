@@ -73,7 +73,7 @@ void Controller::log(Loglevel level, string sClass, string message) const {
 }
 
 void Controller::run() {
-    TENTER(Controller)
+    TRACE_ENTER(Controller, run)
 
-    TLEAVE(Controller)
+    TRACE_LEAVE(Controller, run)
 }

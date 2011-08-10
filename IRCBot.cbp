@@ -22,6 +22,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="-c dist/default.conf" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -33,6 +34,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-DSOCKETEXCEPTIONS" />
 			<Add directory="/home/basty/dev/c++/cb/IRCBot/" />
 		</Compiler>
 		<Linker>
@@ -40,11 +42,15 @@
 		</Linker>
 		<Unit filename="include/Controller.h" />
 		<Unit filename="include/Logger.h" />
+		<Unit filename="include/Socket.h" />
+		<Unit filename="include/SocketException.h" />
 		<Unit filename="include/debug.h" />
 		<Unit filename="include/helper.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Controller.cpp" />
 		<Unit filename="src/Logger.cpp" />
+		<Unit filename="src/Socket.cpp" />
+		<Unit filename="src/SocketException.cpp" />
 		<Unit filename="src/helper.cpp" />
 		<Unit filename="version.h" />
 		<Extensions>

@@ -5,6 +5,9 @@
 #include "version.h"
 #include "include/Controller.h"
 
+#include "include/SocketException.h"
+#include <errno.h>
+
 using namespace std;
 
 void showHelp(ostream& out, const char * arg0){
