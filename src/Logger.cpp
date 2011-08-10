@@ -20,8 +20,8 @@ string Logger::strLoglevel(Loglevel level) {
             return "debug";
         case  LL_TRACE:
             return "trace";
-        case  LL_FULLDEBUG:
-            return "full-debug";
+        case  LL_RAW:
+            return "RAW";
         default:
             return "unknown";
     }
@@ -31,7 +31,7 @@ Logger::Logger()
 {
     m_out = &std::cerr;
     m_format = "{DATE}\t{LEVEL}\t{CLASS}\t=> {MESSAGE}";
-    m_dateformat = "%F";
+    m_dateformat = "%c";
     m_mask = LL_LEASTWARN;
 }
 

@@ -8,6 +8,7 @@ using namespace std;
 
 enum Loglevel {
     LL_NONE = 0,
+
     LL_CRITICAL = 1,
     LL_ERROR = 2,
     LL_WARNING = 4,
@@ -15,7 +16,7 @@ enum Loglevel {
     LL_INFO = 16,
     LL_DEBUG = 32,
     LL_TRACE = 64,
-    LL_FULLDEBUG = 128,
+    LL_RAW = 256,
 
     LL_LEASTWARN = 7,
     LL_ALL = 0xff,

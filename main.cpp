@@ -1,29 +1,83 @@
 #include <iostream>
-#include <fstream>
+#include <getopt.h>
+#include <libconfig.h++>
 #include "include/Logger.h"
+#include "version.h"
+#include "include/Controller.h"
 
 using namespace std;
 
-int main()
+void showHelp(ostream& out, const char * arg0){
+    out << "Usage: " << arg0 << " [options] -c <config file>" << endl;
+    out << endl;
+    out << "\t" << "-h, --help\t show this help message and quit" << endl;
+    out << "\t" << "-c, --config=FILE\t specifies the config file. Note: command line options overrides settings" << endl;
+    out << "\t" << "-d, --daemonize\t detach from terminal" << endl;
+}
+
+
+int main(int argc, char** argv)
 {
+    libconfig::Config * config = new libconfig::Config();
+    bool readConfig = false, daemonize = false;
 
-    Logger* logger = new Logger();
+    while(1) {
+        static struct option long_options[] = {
+            {"help",    no_argument,    0,  'h'},
+            {"daemonize",no_argument,    0, 'd'},
+            {"config",  required_argument,  0,  'c'},
+            {"version",no_argument,    0, 'V'},
+            {0,         0,              0,  0},
+        };
 
-    ofstream out;
+        int loptind = 0;
+        int o;
 
-    out.open("test.log", ios_base::app);
+        o = getopt_long(argc, argv, "hdc:V", long_options, &loptind);
 
-    logger->setStream(&out);
-    logger->setLevelMask(LL_ALL);
+        if(o == -1) break;
 
-    logger->mark();
-    logger->log(LL_CRITICAL, "this is critical");
-    logger->log(LL_ERROR, "this is error");
-    logger->log(LL_WARNING, "this is warning");
-    logger->log(LL_NOTICE, "this is notice"); // should not be shown
-    logger->mark();
+        // cout << o << endl;
+        switch(o){
+            case 'h':
+                showHelp(cout, argv[0]);
+                return 0;
+                break;
+            case 'd':
+                cout << "daemonize" << endl;
+                break;
+            case 'V':
+                /** @todo give email address */
+                cout << "IRC Bot v" << AutoVersion::MAJOR << "." << AutoVersion::MINOR << AutoVersion::STATUS_SHORT << " rev "
+                    << AutoVersion::REVISION << " Build: " << AutoVersion::BUILD << " ("<< AutoVersion::YEAR << "-"
+                    << AutoVersion::MONTH << "-" << AutoVersion::DATE <<")" << endl;
+                break;
+            case 'c':
+                readConfig = true;
+                try{
+                    config->readFile(optarg);
+                }catch(libconfig::ParseException& e){
+                    cerr << "error parsing configuration file:"<< endl;
+                    cerr << "\t" << e.getFile() << ":" << e.getLine() << " - " << e.getError();
+                    return 1;
+                }
+                break;
+        }
+    }
 
-    out.close();
+    if(!readConfig)
+        cerr << "must specify an config file with '-c' or '--config' commandline option" << endl;
+
+    Controller::setConfig(config);
+    Controller* ctrl = Controller::getController();
+
+    if(daemonize) ctrl->daemonize();
+#ifdef DEBUG
+    ctrl->addLogger("STDOUT", 0x7f);
+#endif
+    ctrl->run();
+
+
 
 
     return 0;
