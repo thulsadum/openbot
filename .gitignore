@@ -3,5 +3,6 @@
 *.depend
 obj/*
 bin/*
-
+.*.swp
+*.log
 IRCBot.layout

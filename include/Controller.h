@@ -6,6 +6,7 @@
 #include <string>
 
 #include "include/Logger.h"
+#include "include/IRC.h"
 
 class Controller
 {
@@ -16,6 +17,7 @@ class Controller
         /** Default destructor */
         virtual ~Controller();
 
+        void prepare();
         void run();
         void daemonize() const;
 
@@ -24,6 +26,10 @@ class Controller
 
         void addLogger(string target, int logmask, string format = "{DATE}\t{LEVEL}\t{CLASS}\t=> {MESSAGE}", string date_format = "%c");
 
+        IRC *getIRC() const;
+
+        bool isRunning() const;
+        void stop();
 
     protected:
     private:
@@ -34,6 +40,8 @@ class Controller
 
         libconfig::Config* m_config;
         list<Logger> m_logger;
+        IRC *m_irc;
+        bool m_running;
 };
 
 #endif // CONTROLLER_H

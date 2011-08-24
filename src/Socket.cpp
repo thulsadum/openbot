@@ -1,4 +1,5 @@
 #include "include/Socket.h"
+#include <fcntl.h>
 
 Socket::Socket(int domain, int type, int protocol)
 {
@@ -67,4 +68,14 @@ int     Socket::shutdown(int how){
 }
 int     Socket::sockatmark(){
     return ::sockatmark(m_fd);
+}
+
+void Socket::setBlock() {
+    int flags = fcntl(m_fd, F_GETFL);
+    fcntl(m_fd, F_SETFL, flags&(~O_NONBLOCK));
+}
+
+void Socket::setNonBlock() {
+    int flags = fcntl(m_fd, F_GETFL);
+    fcntl(m_fd, F_SETFL, flags|O_NONBLOCK);
 }

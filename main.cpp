@@ -51,9 +51,10 @@ int main(int argc, char** argv)
                 break;
             case 'V':
                 /** @todo give email address */
-                cout << "IRC Bot v" << AutoVersion::MAJOR << "." << AutoVersion::MINOR << AutoVersion::STATUS_SHORT << " rev "
-                    << AutoVersion::REVISION << " Build: " << AutoVersion::BUILD << " ("<< AutoVersion::YEAR << "-"
-                    << AutoVersion::MONTH << "-" << AutoVersion::DATE <<")" << endl;
+                cout << "openbot++ Version " << AutoVersion::_MAJOR << "." << AutoVersion::_MINOR << AutoVersion::_STATUS_SHORT << " rev "
+                    << AutoVersion::_REVISION << " Build: " << AutoVersion::_BUILD << " ("<< AutoVersion::_YEAR << "-"
+                    << AutoVersion::_MONTH << "-" << AutoVersion::_DATE <<")" << endl;
+                cout << "This bot is made by devils hand!"<<endl;
                 break;
             case 'c':
                 readConfig = true;
@@ -75,13 +76,13 @@ int main(int argc, char** argv)
     Controller* ctrl = Controller::getController();
 
     if(daemonize) ctrl->daemonize();
+
 #ifdef DEBUG
     ctrl->addLogger("STDOUT", 0x7f);
 #endif
+
+    ctrl->prepare();
     ctrl->run();
-
-
-
 
     return 0;
 }

@@ -47,6 +47,7 @@
 		<Unit filename="include/debug.h" />
 		<Unit filename="include/helper.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="plugins.h" />
 		<Unit filename="src/Controller.cpp" />
 		<Unit filename="src/Logger.cpp" />
 		<Unit filename="src/Socket.cpp" />

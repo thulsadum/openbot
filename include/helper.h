@@ -2,6 +2,7 @@
 #define HELPER_H_INCLUDED
 
 #include <string>
+#include <vector>
 using namespace std;
 
 /** replaces all occurences of an string in a string
@@ -12,6 +13,8 @@ using namespace std;
   */
 string replaceAll(string haystack, string needle, string replacement);
 
-
+vector<string> split(string input, string delimeter);
+string join(vector<string> input, int start, int end , string glue);
+string join(vector<string> input, string glue);
 
 #endif // HELPER_H_INCLUDED
