@@ -12,7 +12,7 @@ using std::ostringstream;
 
 #define CRLF "\r\n"
 
-#define RBUF_SIZE 40960
+#define RBUF_SIZE 4096
 
 class IRC
 {
@@ -39,7 +39,7 @@ class IRC
         double getResetInterval() const;
 
         void setMaxMessages(int value);
-        double getMaxMessages() const;
+        int getMaxMessages() const;
 
         void sendCmd(string cmd);
         void poll();

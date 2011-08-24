@@ -20,6 +20,8 @@ IRC::IRC()
     m_qrecv = new std::queue<string>;
     m_sock = new Socket(AF_INET, SOCK_STREAM, 0);
 
+    time(&m_lastrst);
+
     //m_sock->setsockopt(0, , 1, sizeof(int));
 
     TRACE_LEAVE(IRC,IRC);
@@ -122,21 +124,30 @@ void IRC::poll() {
     // reseting flood protection
     time_t now;
     time(&now);
-    if(difftime(m_lastrst, now) > getResetInterval()){
+    if(difftime(now, m_lastrst) > getResetInterval()){
+        DEBG("IRC::poll", "reseting sendcount")
         this->m_lastrst = now;
         this->m_sendcount = 0;
     }
 
     // processing pending sending messages, if possible.
     if(m_sendcount < m_maxcount && !m_qsend->empty()) {
+        DEBG("IRC::poll", "Aye sending :D")
         string msg = m_qsend->front();
+        m_sendcount++;
         this->send(msg);
         m_qsend->pop();
     }
 
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(m_sock->getFileDescriptor(), &fds);
+    timeval to;
+    to.tv_sec = 0;
+    to.tv_usec = 200;
+    select(m_sock->getFileDescriptor()+1, &fds, NULL, NULL, &to);
     // recv messages
-
-    if( this->recv() > 0){
+    if( FD_ISSET(this->m_sock->getFileDescriptor(), &fds) && this->recv() > 0){
         // yay we received something
         string input = this->m_recvbuf.str();
         int start = 0, end;
@@ -155,6 +166,7 @@ void IRC::poll() {
         this->m_qrecv->pop();
         parse(msg);
     }
+
 }
 
 void IRC::setResetInterval(double val) {
@@ -169,7 +181,7 @@ void IRC::setMaxMessages(int val) {
     this->m_maxcount = val;
 }
 
-double IRC::getMaxMessages() const {
+int IRC::getMaxMessages() const {
     return this->m_maxcount;
 }
 
@@ -180,6 +192,8 @@ int IRC::recv() {
     memset(buffer, 0,  RBUF_SIZE);
     read = this->m_sock->recv(buffer, RBUF_SIZE-1, 0);
     this->m_recvbuf << buffer;
+
+    delete buffer;
 
     if(read== 0) return 0;
     if(errno == EAGAIN) return 0;
@@ -194,9 +208,18 @@ void IRC::parse(string message) {
     // spliting message into chunks separated by spaces
     vector<string> args = split(message, " ");
 
+    if(message.compare("") == 0){
+        NOTICE("IRC::parse", "got empty string? uh.");
+    }
+
     ostringstream msg;
     string cmd;
     int argstart;
+    if(args.size() == 0){
+        ERROR("s","zero chunks?")
+        DEBG("s", message)
+        return;
+    }
 
     msg << "arguments: " << args.size();
     DEBG("IRC::parse", msg.str())
@@ -208,7 +231,19 @@ void IRC::parse(string message) {
         argstart = 1;
     }
 
-    msg.str("");
-    msg << cmd << " " << join(args,argstart, args.size(), ",");
-    DEBG("IRC::parse", msg.str());
+    if(cmd.compare("PING") == 0) {
+        // yay got a ping
+        INFO("IRC::parse", "Ping? Peng!");
+        this->sendImmediate(IRCMessageBuilder::pong(args[argstart]));
+    }
+    else if(
+            cmd[0] >= '0' && cmd[0] <= '9' &&
+            cmd[1] >= '0' && cmd[1] <= '9' &&
+            cmd[2] >= '0' && cmd[2] <= '9') {
+        // got a numeric response in here...
+        /// @todo implement
+        msg.str("");
+        msg << "numeric: " <<  cmd;
+        DEBG("IRC::parse",msg.str());
+    }
 }

@@ -18,6 +18,7 @@ vector<string> split(string input, string delimeter) {
         args.push_back(input.substr(start,end - start));
         start = end + 1;
     }
+    args.push_back(input.substr(start, input.size() - start));
     return args;
 }
 

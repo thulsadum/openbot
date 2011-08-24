@@ -1,12 +1,14 @@
 #include "include/Controller.h"
-
+#include "include/helper.h"
 #include "include/debug.h"
+#include "include/IRCMessageBuilder.h"
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <sys/select.h>
 
 Controller* Controller::ctrl = 0;
 libconfig::Config*  Controller::cfg = 0;
@@ -187,10 +189,30 @@ void Controller::prepare() {
         }
     }
 
-    if(success)
+    if(success){
        INFO("Controller::prepare", "successfuly connected!")
-    else
+
+       int maxsend;
+       double maxsendint;
+       if(m_config->lookupValue("security.max-messages", maxsend)) getIRC()->setMaxMessages(maxsend);
+       if(m_config->lookupValue("security.max-messages-interval", maxsendint)) getIRC()->setResetInterval(maxsendint);
+
+       if(m_config->exists("info.autojoin")){
+           const libconfig::Setting &channels = m_config->lookup("info.autojoin");
+           string channel;
+            for(int i = 0; i<channels.getLength(); i++) {
+                channel = channels[i].c_str();
+                msg.str("");
+                msg << "joining " << channel;
+                NOTICE("Controller::prepare", msg.str());
+                getIRC()->sendCmd(IRCMessageBuilder::join(channel));
+            }
+       }
+       string modes;
+       if(m_config->lookupValue("info.automode", modes)) getIRC()->sendCmd(IRCMessageBuilder::mode(getIRC()->getNick(), modes));
+    } else
         CRITICAL("Controller::prepare", "could not connect to any server!")
+
 
     m_running = success;
 

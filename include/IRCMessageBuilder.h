@@ -9,6 +9,9 @@ class IRCMessageBuilder
         static string pass(string password);
         static string nick(string nick);
         static string user(string user, string host, string server, string realname);
+        static string pong(string msg);
+        static string join(string channel);
+        static string mode(string target, string modemask);
     protected:
     private:
 };

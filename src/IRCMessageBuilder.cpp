@@ -23,3 +23,23 @@ string IRCMessageBuilder::user(string user, string host, string server, string r
     << realname;
     return msg.str();
 }
+
+string IRCMessageBuilder::pong(string daemon) {
+    ostringstream msg;
+    msg << "PONG " << daemon;
+    return msg.str();
+
+}
+
+string IRCMessageBuilder::join(string channel) {
+    ostringstream msg;
+    msg << "JOIN " << channel;
+    return msg.str();
+}
+
+string IRCMessageBuilder::mode(string target, string modemask) {
+    ostringstream msg;
+    msg << "MODE " << target << " " << modemask;
+    return msg.str();
+
+}
