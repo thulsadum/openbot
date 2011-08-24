@@ -1,4 +1,7 @@
+#define HELPER_IMPL
+
 #include "include/helper.h"
+#include "include/debug.h"
 #include <sstream>
 using std::ostringstream;
 // some helper functions
@@ -37,4 +40,21 @@ string join(vector<string> input, int start, int end, string glue) {
 
 string join(vector<string> input, string glue) {
     return join(input, 0, input.size(), glue);
+}
+
+HHOOK(Ping, ping_hook)
+HHOOK(Numeric, numeric_hook)
+HHOOK(Join, join_hook)
+
+void mkpluginctrl(PluginController* ppc){
+    TRACE_ENTER(, mkpluginctrl)
+    ppc->registerPingHook = _registerPingHook;
+    ppc->registerNumericHook = _registerNumericHook;
+    ppc->registerJoinHook = _registerJoinHook;
+
+    ostringstream msg;
+    msg << "address of ppc 0x" << hex << ppc;
+    DEBG("::mkpluginctrl", msg.str());
+
+    TRACE_LEAVE(, mkpluginctrl)
 }

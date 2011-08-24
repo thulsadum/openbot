@@ -44,6 +44,8 @@ class IRC
         void sendCmd(string cmd);
         void poll();
 
+        void flush();
+
 
     protected:
     private:

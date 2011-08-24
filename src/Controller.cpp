@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 #include <sys/select.h>
+#include <dlfcn.h>
+#include <libgen.h>
 
 Controller* Controller::ctrl = 0;
 libconfig::Config*  Controller::cfg = 0;
@@ -17,6 +19,7 @@ libconfig::Config*  Controller::cfg = 0;
 Controller::Controller(libconfig::Config* config)
 {
     this->m_config = config;
+    m_libs = new MapLib;
 }
 
 Controller::~Controller()
@@ -152,6 +155,34 @@ void Controller::prepare() {
     } else {
         log(LL_WARNING, "Controlller::prepare", "Errornous configuration section - logging musst be a list. Logging disabled entirely. I wonder anyone will ever read this message?");
     }
+    const libconfig::Setting &extensions = root["extensions"]["load"];
+    const libconfig::Setting &exts = root["extensions"];
+    string libfile, libtype, spath;
+
+    msg.str("");
+    msg << "loading "<< extensions.getLength() << " extensions...";
+    INFO("Controller::prepare", msg.str());
+
+    exts.lookupValue("path", spath);
+
+    ostringstream path;
+    for(int i = 0; i < extensions.getLength(); i++) {
+        const libconfig::Setting &ext = exts[extensions[i].c_str()];
+        //path.str(spath);
+        if(ext.lookupValue("type", libtype) && ext.lookupValue("file", libfile)) {
+            //path << "/" << libfile;
+            if(libtype.compare("so") == 0){
+                // shared object
+                loadLib(libfile);
+            } else if(libtype.compare("lua") == 0) {
+                // lua script
+            }
+        } else {
+            msg.str("");
+            msg << "problem with extension #" <<i;
+            WARNING("Controller::prepare", msg.str());
+        }
+    }
 
     // set up irc connection
     log(LL_INFO, "Controller::prepare", "setting up irc..");
@@ -224,5 +255,74 @@ bool Controller::isRunning() const {
 }
 
 void Controller::stop() {
+    TRACE_ENTER(Controller, stop)
+
+    INFO("Controller::stop", "stopping for generic reason")
+    string qmsg;
+    if(m_config->lookupValue("info.quitmsg", qmsg)) getIRC()->sendCmd(IRCMessageBuilder::quit(qmsg));
+    else getIRC()->sendCmd(IRCMessageBuilder::quit("no quit message"));
+    getIRC()->flush();
     this->m_running = false;
+
+    TRACE_LEAVE(Controller, stop)
+}
+
+void Controller::stop(string reason) {
+    TRACE_ENTER(Controller, stop)
+
+    ostringstream msg;
+    msg<<"stopping for "<<reason;
+    INFO("Controller::stop", msg.str())
+
+    getIRC()->sendCmd(IRCMessageBuilder::quit(reason));
+    getIRC()->flush();
+    this->m_running = false;
+
+    TRACE_LEAVE(Controller, stop)
+}
+
+HookCtrl *Controller::getHookControl() const {
+    return m_hooks;
+}
+
+void Controller::loadLib(string lib){
+    TRACE_ENTER(Controller,loadLib)
+
+    // already loaded
+    ostringstream msg;
+    const string libname = msg.str();
+
+
+    if(m_libs->count(libname)!=0){
+        msg << "'" << libname << "' already loaded.";
+        WARNING("Controller::loadLib", msg.str());
+         return;
+    }
+
+    msg << "loading shared object " << lib;
+    INFO("Controller::loadLib", msg.str());
+    msg.str("");
+
+    void* handle = dlopen(lib.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+    if(handle == NULL) {
+        ERROR("Controller::loadLib",dlerror());
+        return;
+    }
+
+    dlerror(); // clear error
+    lib_entry_fn_t setup = (lib_entry_fn_t) dlsym(handle, "setup");
+    char* pc_err = dlerror();
+    if(pc_err != NULL) {
+        WARNING("Controller::loadLib", "no symbol 'setup' defined - probably no functions registered")
+        return;
+    }
+
+
+    PluginController ppc;
+    mkpluginctrl(&ppc);
+    INFO("Controller::loadLib","calling setup function for lib")
+
+    setup(&ppc);
+
+    TRACE_LEAVE(Controller,loadLib)
 }

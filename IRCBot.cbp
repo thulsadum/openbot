@@ -16,6 +16,9 @@
 					<Add option="-g" />
 					<Add option="-DDEBUG" />
 				</Compiler>
+				<Linker>
+					<Add option="-ldl" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/IRCBot" prefix_auto="1" extension_auto="1" />
@@ -23,6 +26,52 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="-c dist/default.conf" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-ldl" />
+				</Linker>
+			</Target>
+			<Target title="testplugin">
+				<Option output="testplugin.so" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj/testplugin/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-fPIC" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="static">
+				<Option output="libIRCBot" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/static/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="shared">
+				<Option output="IRCBot" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/shared/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -41,6 +90,7 @@
 			<Add library="/usr/lib/libconfig++.so" />
 		</Linker>
 		<Unit filename="include/Controller.h" />
+		<Unit filename="include/HookCtrl.h" />
 		<Unit filename="include/IRC.h" />
 		<Unit filename="include/IRCMessageBuilder.h" />
 		<Unit filename="include/Logger.h" />
@@ -49,15 +99,65 @@
 		<Unit filename="include/debug.h" />
 		<Unit filename="include/helper.h" />
 		<Unit filename="include/hooks.h" />
-		<Unit filename="main.cpp" />
 		<Unit filename="plugins.h" />
-		<Unit filename="src/Controller.cpp" />
-		<Unit filename="src/IRC.cpp" />
-		<Unit filename="src/IRCMessageBuilder.cpp" />
-		<Unit filename="src/Logger.cpp" />
-		<Unit filename="src/Socket.cpp" />
-		<Unit filename="src/SocketException.cpp" />
-		<Unit filename="src/helper.cpp" />
+		<Unit filename="src/Controller.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/HookCtrl.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/IRC.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/IRCMessageBuilder.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/Logger.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/Socket.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/SocketException.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/extensions/test.cpp">
+			<Option target="testplugin" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/helper.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
+		<Unit filename="src/main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="static" />
+			<Option target="shared" />
+		</Unit>
 		<Unit filename="version.h" />
 		<Extensions>
 			<code_completion />

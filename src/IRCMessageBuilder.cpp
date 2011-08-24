@@ -43,3 +43,9 @@ string IRCMessageBuilder::mode(string target, string modemask) {
     return msg.str();
 
 }
+
+string IRCMessageBuilder::quit(string message) {
+    ostringstream msg;
+    msg << "QUIT :" << message;
+    return msg.str();
+}

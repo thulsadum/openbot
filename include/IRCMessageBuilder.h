@@ -12,6 +12,7 @@ class IRCMessageBuilder
         static string pong(string msg);
         static string join(string channel);
         static string mode(string target, string modemask);
+        static string quit(string message);
     protected:
     private:
 };

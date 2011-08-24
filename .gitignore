@@ -5,4 +5,6 @@ obj/*
 bin/*
 .*.swp
 *.log
+*.o
+*.so
 IRCBot.layout

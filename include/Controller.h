@@ -4,9 +4,15 @@
 #include <libconfig.h++>
 #include <list>
 #include <string>
+#include <map>
 
 #include "include/Logger.h"
 #include "include/IRC.h"
+#include "include/HookCtrl.h"
+
+using std::map;
+
+typedef map<string, void*> MapLib;
 
 class Controller
 {
@@ -27,9 +33,15 @@ class Controller
         void addLogger(string target, int logmask, string format = "{DATE}\t{LEVEL}\t{CLASS}\t=> {MESSAGE}", string date_format = "%c");
 
         IRC *getIRC() const;
+        HookCtrl *getHookControl() const;
 
         bool isRunning() const;
         void stop();
+        void stop(string reason);
+
+        void loadLib(string lib);
+        void unloadLib(string lib);
+
 
     protected:
     private:
@@ -41,7 +53,12 @@ class Controller
         libconfig::Config* m_config;
         list<Logger> m_logger;
         IRC *m_irc;
+        HookCtrl *m_hooks;
         bool m_running;
+
+        MapLib *m_libs;
 };
+
+typedef void (*lib_entry_fn_t)(PluginController*);
 
 #endif // CONTROLLER_H

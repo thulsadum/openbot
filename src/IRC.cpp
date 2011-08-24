@@ -221,8 +221,6 @@ void IRC::parse(string message) {
         return;
     }
 
-    msg << "arguments: " << args.size();
-    DEBG("IRC::parse", msg.str())
     if(args[0][0] == ':'){
         cmd = args[1];
         argstart = 2;
@@ -230,11 +228,14 @@ void IRC::parse(string message) {
         cmd = args[0];
         argstart = 1;
     }
+    msg << "command: " << cmd;
+    DEBG("IRC::parse",msg.str())
 
     if(cmd.compare("PING") == 0) {
         // yay got a ping
         INFO("IRC::parse", "Ping? Peng!");
         this->sendImmediate(IRCMessageBuilder::pong(args[argstart]));
+        /// @todo implement hook
     }
     else if(
             cmd[0] >= '0' && cmd[0] <= '9' &&
@@ -245,5 +246,20 @@ void IRC::parse(string message) {
         msg.str("");
         msg << "numeric: " <<  cmd;
         DEBG("IRC::parse",msg.str());
+    }
+    else if(cmd.compare("QUIT")) {
+        // got a quit message
+        /// @todo hook here
+        /// @todo keep track on acls
+    }
+}
+
+
+void IRC::flush() {
+    // flush all queues
+    while(!m_qrecv->empty()) m_qrecv->pop();
+    while(!m_qsend->empty()) {
+        this->send(m_qsend->front());
+        m_qsend->pop();
     }
 }

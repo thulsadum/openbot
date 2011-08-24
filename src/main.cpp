@@ -7,10 +7,30 @@
 
 #include "include/SocketException.h"
 #include <errno.h>
+#include <signal.h>
 
 using namespace std;
 
-void showHelp(ostream& out, const char * arg0){
+void sighandler(int sig)
+{
+    switch(sig) {
+        case SIGINT:
+            if(Controller::getController()->isRunning()){
+                Controller::getController()->log(LL_WARNING, "::sighandler", "Caught SIGINT");
+                Controller::getController()->stop("caught sigint");
+            }
+        break;
+        case SIGTERM:
+            if(Controller::getController()->isRunning()){
+                Controller::getController()->log(LL_WARNING, "::sighandler", "Caught SIGTERM");
+                Controller::getController()->stop("caught sigterm");
+            }
+        break;
+    }
+}
+
+void showHelp(ostream& out, const char * arg0)
+{
     out << "Usage: " << arg0 << " [options] -c <config file>" << endl;
     out << endl;
     out << "\t" << "-h, --help\t show this help message and quit" << endl;
@@ -24,8 +44,17 @@ int main(int argc, char** argv)
     libconfig::Config * config = new libconfig::Config();
     bool readConfig = false, daemonize = false;
 
-    while(1) {
-        static struct option long_options[] = {
+    struct sigaction act;
+    act.sa_handler = sighandler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, 0);
+    sigaction(SIGTERM, &act, 0);
+
+    while(1)
+    {
+        static struct option long_options[] =
+        {
             {"help",    no_argument,    0,  'h'},
             {"daemonize",no_argument,    0, 'd'},
             {"config",  required_argument,  0,  'c'},
@@ -41,31 +70,35 @@ int main(int argc, char** argv)
         if(o == -1) break;
 
         // cout << o << endl;
-        switch(o){
-            case 'h':
-                showHelp(cout, argv[0]);
-                return 0;
-                break;
-            case 'd':
-                cout << "daemonize" << endl;
-                break;
-            case 'V':
-                /** @todo give email address */
-                cout << "openbot++ Version " << AutoVersion::_MAJOR << "." << AutoVersion::_MINOR << AutoVersion::_STATUS_SHORT << " rev "
-                    << AutoVersion::_REVISION << " Build: " << AutoVersion::_BUILD << " ("<< AutoVersion::_YEAR << "-"
-                    << AutoVersion::_MONTH << "-" << AutoVersion::_DATE <<")" << endl;
-                cout << "This bot is made by devils hand!"<<endl;
-                break;
-            case 'c':
-                readConfig = true;
-                try{
-                    config->readFile(optarg);
-                }catch(libconfig::ParseException& e){
-                    cerr << "error parsing configuration file:"<< endl;
-                    cerr << "\t" << e.getFile() << ":" << e.getLine() << " - " << e.getError();
-                    return 1;
-                }
-                break;
+        switch(o)
+        {
+        case 'h':
+            showHelp(cout, argv[0]);
+            return 0;
+            break;
+        case 'd':
+            cout << "daemonize" << endl;
+            break;
+        case 'V':
+            /** @todo give email address */
+            cout << "openbot++ Version " << AutoVersion::_MAJOR << "." << AutoVersion::_MINOR << AutoVersion::_STATUS_SHORT << " rev "
+                 << AutoVersion::_REVISION << " Build: " << AutoVersion::_BUILD << " ("<< AutoVersion::_YEAR << "-"
+                 << AutoVersion::_MONTH << "-" << AutoVersion::_DATE <<")" << endl;
+            cout << "This bot is made by devils hand!"<<endl;
+            break;
+        case 'c':
+            readConfig = true;
+            try
+            {
+                config->readFile(optarg);
+            }
+            catch(libconfig::ParseException& e)
+            {
+                cerr << "error parsing configuration file:"<< endl;
+                cerr << "\t" << e.getFile() << ":" << e.getLine() << " - " << e.getError();
+                return 1;
+            }
+            break;
         }
     }
 
