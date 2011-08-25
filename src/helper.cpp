@@ -49,8 +49,8 @@ HHOOK(Join, join_hook)
 void mkpluginctrl(PluginController* ppc){
     TRACE_ENTER(, mkpluginctrl)
     ppc->registerPingHook = _registerPingHook;
-    ppc->registerNumericHook = _registerNumericHook;
-    ppc->registerJoinHook = _registerJoinHook;
+//    ppc->registerNumericHook = _registerNumericHook;
+//    ppc->registerJoinHook = _registerJoinHook;
 
     ostringstream msg;
     msg << "address of ppc 0x" << hex << ppc;

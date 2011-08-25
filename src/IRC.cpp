@@ -132,7 +132,6 @@ void IRC::poll() {
 
     // processing pending sending messages, if possible.
     if(m_sendcount < m_maxcount && !m_qsend->empty()) {
-        DEBG("IRC::poll", "Aye sending :D")
         string msg = m_qsend->front();
         m_sendcount++;
         this->send(msg);

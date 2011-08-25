@@ -1,6 +1,7 @@
 #ifndef HELPER_H_INCLUDED
 #define HELPER_H_INCLUDED
 
+#include "include/debug.h"
 #include "include/hooks.h"
 #include "include/Controller.h"
 
@@ -31,7 +32,7 @@ HHOOK(Numeric,ping_hook)
 
 #ifdef HELPER_IMPL
 
-#define HHOOK(NAME, TYPE) void _register##NAME##Hook(TYPE callback){ Controller::getController()->getHookControl()->register##NAME##Hook(callback); }
+#define HHOOK(NAME, TYPE) void _register##NAME##Hook(TYPE callback){ TRACE_ENTER(,_register##NAME##Hook) Controller::getController()->getHookControl()->register##NAME##Hook(callback); TRACE_LEAVE(,_register##NAME##Hook)}
 
 #endif
 

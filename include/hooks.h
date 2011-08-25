@@ -13,7 +13,7 @@ typedef void (*register_join_t)(join_hook);
 
 struct PluginController {
     register_ping_t registerPingHook;
-    register_join_t registerJoinHook;
-    register_numeric_t registerNumericHook;
+//    register_join_t registerJoinHook;
+//    register_numeric_t registerNumericHook;
 };
 #endif // HOOKS_H_INCLUDED

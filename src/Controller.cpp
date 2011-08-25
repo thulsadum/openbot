@@ -20,6 +20,7 @@ Controller::Controller(libconfig::Config* config)
 {
     this->m_config = config;
     m_libs = new MapLib;
+    m_hooks = new HookCtrl();
 }
 
 Controller::~Controller()
@@ -303,26 +304,33 @@ void Controller::loadLib(string lib){
     INFO("Controller::loadLib", msg.str());
     msg.str("");
 
-    void* handle = dlopen(lib.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+    void* handle = dlopen(lib.c_str(), RTLD_LAZY);
     if(handle == NULL) {
         ERROR("Controller::loadLib",dlerror());
         return;
     }
 
     dlerror(); // clear error
-    lib_entry_fn_t setup = (lib_entry_fn_t) dlsym(handle, "setup");
+    lib_entry_fn_t psetup = (lib_entry_fn_t) dlsym(handle, "setup");
     char* pc_err = dlerror();
     if(pc_err != NULL) {
         WARNING("Controller::loadLib", "no symbol 'setup' defined - probably no functions registered")
         return;
     }
+    msg.str("");
+    msg << "setup function located at 0x" << hex << psetup;
+    DEBG("Controller::loadLib", msg.str())
+
 
 
     PluginController ppc;
     mkpluginctrl(&ppc);
+
+    ppc.registerPingHook(NULL);
+
     INFO("Controller::loadLib","calling setup function for lib")
 
-    setup(&ppc);
+    psetup(NULL);
 
     TRACE_LEAVE(Controller,loadLib)
 }
