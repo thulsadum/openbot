@@ -9,8 +9,22 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
+#include <vector>
 
 using std::ostringstream;
+using std::vector;
+
+#define CHOOK(NAME, TYPE, ...) vector<TYPE> *hooks = Controller::getController()->getHookControl()->get##NAME##Hooks();\
+        TYPE hook; \
+        for(unsigned int i = 0; i < hooks->size(); i++){ \
+            hook = hooks->at(i); \
+            if(hook != NULL){ \
+                msg.str(""); \
+                DEBG("IRC::parse", "calling " #TYPE); \
+                hook(__VA_ARGS__); \
+            } \
+        }
+
 
 IRC::IRC()
 {
@@ -221,6 +235,7 @@ void IRC::parse(string message) {
     }
 
     if(args[0][0] == ':'){
+        args[0] = args[0].substr(1,args[0].size());
         cmd = args[1];
         argstart = 2;
     } else {
@@ -234,7 +249,7 @@ void IRC::parse(string message) {
         // yay got a ping
         INFO("IRC::parse", "Ping? Peng!");
         this->sendImmediate(IRCMessageBuilder::pong(args[argstart]));
-        /// @todo implement hook
+        CHOOK(Ping, ping_hook, args[argstart].c_str());
     }
     else if(
             cmd[0] >= '0' && cmd[0] <= '9' &&
@@ -242,17 +257,30 @@ void IRC::parse(string message) {
             cmd[2] >= '0' && cmd[2] <= '9') {
         // got a numeric response in here...
         /// @todo implement
-        msg.str("");
-        msg << "numeric: " <<  cmd;
-        DEBG("IRC::parse",msg.str());
+
+        int numeric = atoi(cmd.c_str());
+
+        char ** cargs = new char*[args.size()];
+        for(unsigned int i=0; i<args.size(); i++)
+            cargs[i] = (char*)args[i].c_str();
+
+        CHOOK(Numeric, numeric_hook, numeric, args.size(), (const char**)cargs );
+
     }
-    else if(cmd.compare("QUIT")) {
+    else if(cmd.compare("QUIT") == 0) {
         // got a quit message
         /// @todo hook here
         /// @todo keep track on acls
     }
+    else if(cmd.compare("JOIN") == 0) {
+        // got a join here
+        /// @todo maintain channel lists
+        string chan;
+        if(args[2][0] == ':') chan = args[2].substr(1,args[2].size());
+        else chan = args[2];
+        CHOOK(Join, join_hook, args[0].c_str(), chan.c_str());
+    }
 }
-
 
 void IRC::flush() {
     // flush all queues
@@ -261,4 +289,16 @@ void IRC::flush() {
         this->send(m_qsend->front());
         m_qsend->pop();
     }
+}
+
+void IRC::join(string channel) {
+    sendCmd(IRCMessageBuilder::join(channel));
+}
+
+void IRC::part(string channel) {
+    sendCmd(IRCMessageBuilder::part(channel));
+}
+
+void IRC::privmsg(string target, string message) {
+    sendCmd(IRCMessageBuilder::privmsg(target, message));
 }

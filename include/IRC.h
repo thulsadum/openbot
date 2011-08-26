@@ -44,6 +44,11 @@ class IRC
         void sendCmd(string cmd);
         void poll();
 
+        // some use full functions
+        void join(string channel);
+        void part(string channel);
+        void privmsg(string target, string message);
+
         void flush();
 
 

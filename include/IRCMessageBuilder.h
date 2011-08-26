@@ -11,8 +11,10 @@ class IRCMessageBuilder
         static string user(string user, string host, string server, string realname);
         static string pong(string msg);
         static string join(string channel);
+        static string part(string channel);
         static string mode(string target, string modemask);
         static string quit(string message);
+        static string privmsg(string target, string message);
     protected:
     private:
 };

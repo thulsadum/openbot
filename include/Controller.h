@@ -9,6 +9,7 @@
 #include "include/Logger.h"
 #include "include/IRC.h"
 #include "include/HookCtrl.h"
+#include "plugins.h"
 
 using std::map;
 

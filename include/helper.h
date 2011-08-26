@@ -2,7 +2,7 @@
 #define HELPER_H_INCLUDED
 
 #include "include/debug.h"
-#include "include/hooks.h"
+#include "plugins.h"
 #include "include/Controller.h"
 
 #include <string>
@@ -27,6 +27,14 @@ string join(vector<string> input, string glue);
 HHOOK(Ping,ping_hook)
 HHOOK(Join,ping_hook)
 HHOOK(Numeric,ping_hook)
+
+void _log(Loglevel level, const char * module, const char* message);
+
+void _sendcmd(const char* message);
+void _join(const char* channel);
+void _part(const char* channel);
+void _privmsg(const char* target, const char* message);
+Hostmask_st *_parse_hostmask(const char* mask);
 
 #undef HHOOK
 

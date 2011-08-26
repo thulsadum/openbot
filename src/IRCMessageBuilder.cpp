@@ -37,6 +37,12 @@ string IRCMessageBuilder::join(string channel) {
     return msg.str();
 }
 
+string IRCMessageBuilder::part(string channel) {
+    ostringstream msg;
+    msg << "PART " << channel;
+    return msg.str();
+}
+
 string IRCMessageBuilder::mode(string target, string modemask) {
     ostringstream msg;
     msg << "MODE " << target << " " << modemask;
@@ -47,5 +53,11 @@ string IRCMessageBuilder::mode(string target, string modemask) {
 string IRCMessageBuilder::quit(string message) {
     ostringstream msg;
     msg << "QUIT :" << message;
+    return msg.str();
+}
+
+string IRCMessageBuilder::privmsg(string target, string message) {
+    ostringstream msg;
+    msg << "PRIVMSG " << target <<" :" << message;
     return msg.str();
 }

@@ -237,7 +237,7 @@ void Controller::prepare() {
                 msg.str("");
                 msg << "joining " << channel;
                 NOTICE("Controller::prepare", msg.str());
-                getIRC()->sendCmd(IRCMessageBuilder::join(channel));
+                getIRC()->join(channel);
             }
        }
        string modes;
@@ -304,7 +304,7 @@ void Controller::loadLib(string lib){
     INFO("Controller::loadLib", msg.str());
     msg.str("");
 
-    void* handle = dlopen(lib.c_str(), RTLD_LAZY);
+    void* handle = dlopen(lib.c_str(), RTLD_NOW);
     if(handle == NULL) {
         ERROR("Controller::loadLib",dlerror());
         return;
@@ -323,14 +323,14 @@ void Controller::loadLib(string lib){
 
 
 
-    PluginController ppc;
-    mkpluginctrl(&ppc);
+    PluginController *ppc = new PluginController;
+    mkpluginctrl(ppc);
 
-    ppc.registerPingHook(NULL);
+    //ppc.registerPingHook(NULL);
 
     INFO("Controller::loadLib","calling setup function for lib")
 
-    psetup(NULL);
+    psetup(ppc);
 
     TRACE_LEAVE(Controller,loadLib)
 }
